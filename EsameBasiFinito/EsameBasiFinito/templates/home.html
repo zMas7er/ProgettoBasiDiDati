@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Home - TechHub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Ubuntu', sans-serif;
+            background: linear-gradient(-45deg, #1e3c72, #2a5298, #0f2027, #203a43);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        @keyframes gradient {
+            0% {background-position: 0% 50%;}
+            50% {background-position: 100% 50%;}
+            100% {background-position: 0% 50%;}
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 60px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            text-align: center;
+            max-width: 550px;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        p {
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .btn-group a,
+        .btn-group button {
+            padding: 12px 25px;
+            background-color: #ffffff;
+            color: #1e3c72;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .btn-group a:hover,
+        .btn-group button:hover {
+            background-color: #cce1ff;
+            transform: scale(1.05);
+        }
+
+        /* Modale recensione */
+        #review-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        #review-box {
+            background: white;
+            color: #1e3c72;
+            padding: 20px;
+            border-radius: 10px;
+            width: 300px;
+        }
+
+        #review-box input,
+        #review-box textarea,
+        #review-box button {
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+            box-sizing: border-box;
+            border-radius: 5px;
+            border: none;
+            font-size: 14px;
+        }
+
+        #review-box textarea {
+            resize: none;
+        }
+
+        #review-box button {
+            background-color: #1e3c72;
+            color: white;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        /* Stelle */
+        #stars {
+            margin: 10px 0;
+            font-size: 24px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .star {
+            font-size: 30px;
+            color: gold;
+        }
+
+        /* Bottoni fluttuanti */
+        .aziende-button {
+            position: fixed;
+            bottom: 20px;
+            background-color: white;
+            color: #1e3c72;
+            border: none;
+            border-radius: 50%;
+            padding: 12px 15px;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            transition: transform 0.2s ease;
+        }
+
+        .aziende-button:hover {
+            transform: scale(1.1);
+            background-color: #cce1ff;
+        }
+
+        /* Posizioni dei bottoni */
+        .btn-aziende { right: 20px; }
+        .btn-recensioni { right: 80px; }
+        .btn-info { right: 140px; }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+    </style>
+</head>
+<body>
+
+{% if messages %}
+<div style="position: absolute; top: 20px; background: #fff; color: #1e3c72; padding: 10px 20px; border-radius: 20px; font-weight: bold; animation: fadeOut 2s forwards; animation-delay: 2s;">
+    {% for message in messages %}
+        {{ message }}
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="container">
+    <h1>Benvenuto su TechHub</h1>
+    <p>Il portale per acquistare e recensire componenti tecnologici</p>
+    <div class="btn-group">
+        <a href="/login/">Login</a>
+        <a href="/admin/">Pannello Admin</a>
+        <a href="/register/">Registrati</a>
+        <a href="/ordini/">Ordini</a>
+        <button type="button" onclick="document.getElementById('review-modal').style.display='flex'">
+            Scrivi una Recensione
+        </button>
+    </div>
+</div>
+
+<!-- Modal recensione -->
+<div id="review-modal">
+    <div id="review-box">
+        <h3>Nuova Recensione</h3>
+        <form method="post" action="/recensione/" onsubmit="return submitRecensione()">
+            {% csrf_token %}
+            <input type="text" name="titolo" placeholder="Titolo" required>
+            <textarea name="testo" placeholder="Scrivi la tua recensione..." rows="4" required></textarea>
+            <div id="stars">
+                <span class="star">☆</span>
+                <span class="star">☆</span>
+                <span class="star">☆</span>
+                <span class="star">☆</span>
+                <span class="star">☆</span>
+            </div>
+            <input type="hidden" name="voto" id="voto" value="0">
+            <button type="submit">Invia</button>
+        </form>
+    </div>
+</div>
+
+<!-- Bottoni fluttuanti -->
+<a href="/aziende/" class="aziende-button btn-aziende" title="Aziende partner">🏢</a>
+<a href="/recensioni/" class="aziende-button btn-recensioni" title="Vedi recensioni">⭐</a>
+<a href="/chi-siamo/" class="aziende-button btn-info" title="Info sito">ℹ️</a>
+
+<script>
+    const stelle = document.querySelectorAll('.star');
+    const votoInput = document.getElementById('voto');
+
+    stelle.forEach((stella, i) => {
+        stella.addEventListener('click', () => {
+            const voto = i + 1;
+            votoInput.value = voto;
+            stelle.forEach((s, index) => {
+                s.textContent = index < voto ? '★' : '☆';
+            });
+        });
+    });
+
+    function submitRecensione() {
+        if (votoInput.value === "0") {
+            alert("Seleziona un voto.");
+            return false;
+        }
+        alert("Recensione inviata con successo!");
+        return true;
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('review-modal');
+        if (event.target === modal) {
+            modal.style.display = "none";
+        }
+    }
+</script>
+
+</body>
+</html>

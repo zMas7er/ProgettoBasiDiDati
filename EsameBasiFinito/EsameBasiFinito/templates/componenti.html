@@ -1,0 +1,321 @@
+<!-- Aggiornamento completo con pagamento via carta o PayPal -->
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Componenti - TechHub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Ubuntu', sans-serif;
+      background: linear-gradient(-45deg, #1e3c72, #2a5298, #0f2027, #203a43);
+      background-size: 400% 400%;
+      animation: gradient 15s ease infinite;
+      color: #fff;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    @keyframes gradient {
+      0% {background-position: 0% 50%;}
+      50% {background-position: 100% 50%;}
+      100% {background-position: 0% 50%;}
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 32px;
+    }
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 24px;
+    }
+    .componente {
+      background-color: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 15px;
+      text-align: center;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .componente:hover {
+      transform: scale(1.03);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    }
+    .componente img {
+      max-width: 100%;
+      height: 140px;
+      object-fit: contain;
+      margin-bottom: 10px;
+    }
+    .componente h4 { margin: 10px 0 5px; font-size: 18px; }
+    .componente p { margin: 4px 0; font-size: 15px; }
+    .add-to-cart {
+      margin-top: 12px;
+      background-color: #ffffff;
+      color: #1e3c72;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 30px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+    .add-to-cart:hover {
+      background-color: #cce1ff;
+      transform: scale(1.05);
+    }
+    .sezione {
+      margin-bottom: 60px;
+    }
+    .sezione h2 {
+      margin: 30px 0 20px;
+      font-size: 24px;
+      color: #cce1ff;
+      border-left: 5px solid #cce1ff;
+      padding-left: 10px;
+    }
+    .divider {
+      height: 2px;
+      background: rgba(255, 255, 255, 0.2);
+      margin: 50px auto;
+      width: 90%;
+      border-radius: 1px;
+    }
+    .cart-bar {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 20px;
+    }
+    .cart-icon {
+      background-color: #ffffff;
+      color: #1e3c72;
+      padding: 10px 18px;
+      border-radius: 30px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .cart-panel {
+      position: fixed;
+      top: 0; right: -400px;
+      width: 300px; height: 100%;
+      background-color: #ffffff;
+      color: #1e3c72;
+      box-shadow: -2px 0 5px rgba(0,0,0,0.3);
+      padding: 20px;
+      transition: right 0.3s ease;
+      z-index: 1000;
+      overflow-y: auto;
+      border-top-left-radius: 10px;
+      border-bottom-left-radius: 10px;
+    }
+    .cart-panel.open { right: 0; }
+    .msg-popup {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: #28a745;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-weight: bold;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      z-index: 9999;
+      animation: fadeout 2s forwards;
+    }
+    .checkout-btn {
+      display: block;
+      margin-top: 15px;
+      background-color: #1e3c72;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 30px;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.3s ease;
+    }
+    .checkout-btn:hover {
+      background-color: #2a5298;
+    }
+    .payment-modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
+      justify-content: center;
+      align-items: center;
+      z-index: 1100;
+    }
+    .payment-box {
+      background: white;
+      color: #1e3c72;
+      padding: 30px;
+      border-radius: 15px;
+      width: 320px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    }
+    .payment-box input, .payment-box select {
+      width: 100%;
+      padding: 8px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    .payment-box button {
+      background-color: #1e3c72;
+      color: white;
+      padding: 10px;
+      border: none;
+      width: 100%;
+      margin-top: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    @keyframes fadeout {
+      0% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="cart-bar">
+    <span class="cart-icon" onclick="toggleCart()">🛒 Carrello (<span id="cart-count">0</span>)</span>
+  </div>
+
+  <div class="cart-panel" id="cart-panel">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <h3>Carrello</h3>
+      <button onclick="toggleCart()" style="background: none; border: none; font-size: 20px; cursor: pointer;">✖</button>
+    </div>
+    <ul id="cart-items" style="margin-top: 10px;"></ul>
+    <hr style="margin: 15px 0;">
+    <p><strong>Totale:</strong> €<span id="cart-total">0.00</span></p>
+    <button class="checkout-btn" onclick="openPayment()">Paga ora</button>
+  </div>
+
+  <div class="payment-modal" id="payment-modal">
+    <div class="payment-box">
+      <h3>Metodo di pagamento</h3>
+      <select id="metodo" onchange="toggleMetodo()">
+        <option value="">Seleziona</option>
+        <option value="carta">Visa / Mastercard</option>
+        <option value="paypal">PayPal</option>
+      </select>
+      <div id="carta-info" style="display:none;">
+        <input type="text" placeholder="Numero carta">
+        <input type="text" placeholder="Scadenza (MM/AA)">
+        <input type="text" placeholder="CVV">
+        <button onclick="submitPagamento()">Conferma pagamento</button>
+      </div>
+      <div id="paypal-info" style="display:none;">
+        <button onclick="submitPagamento()">Accedi con PayPal</button>
+      </div>
+    </div>
+  </div>
+
+  <h1> Catalogo Componenti</h1>
+
+  {% for categoria in categorie %}
+  <div class="sezione">
+    <h2>{{ categoria }}</h2>
+    <div class="grid-container">
+      {% for comp in componenti %}
+      {% if comp.tipologia == categoria %}
+      <div class="componente">
+        {% if comp.immagine %}<img src="{{ comp.immagine }}" alt="{{ comp.nome }}">{% endif %}
+        <h4>{{ comp.nome }}</h4>
+        <p>Marca: {{ comp.marca }}</p>
+        <p>Prezzo: €{{ comp.prezzo }}</p>
+        <button class="add-to-cart" onclick="addToCart({{ comp.id }}, '{{ comp.nome|escapejs }}', '{{ comp.prezzo }}')">Aggiungi al carrello</button>
+      </div>
+      {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+  <div class="divider"></div>
+  {% endfor %}
+
+  <script>
+    let cart = [];
+    function addToCart(id, nome, prezzo) {
+      cart.push({ id, nome, prezzo: parseFloat(prezzo) });
+      updateCart();
+      showMessage("Aggiunto al carrello: " + nome);
+    }
+    function updateCart() {
+      document.getElementById("cart-count").textContent = cart.length;
+      const cartItems = document.getElementById("cart-items");
+      cartItems.innerHTML = '';
+      let totale = 0;
+      cart.forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = `${item.nome} - €${item.prezzo.toFixed(2)}`;
+        cartItems.appendChild(li);
+        totale += item.prezzo;
+      });
+      document.getElementById("cart-total").textContent = totale.toFixed(2);
+    }
+    function showMessage(text) {
+      const msg = document.createElement("div");
+      msg.className = "msg-popup";
+      msg.textContent = text;
+      document.body.appendChild(msg);
+      setTimeout(() => { msg.remove(); }, 2500);
+    }
+    function toggleCart() {
+      document.getElementById("cart-panel").classList.toggle("open");
+    }
+    function openPayment() {
+      document.getElementById("payment-modal").style.display = "flex";
+    }
+    function toggleMetodo() {
+      const metodo = document.getElementById("metodo").value;
+      document.getElementById("carta-info").style.display = metodo === "carta" ? "block" : "none";
+      document.getElementById("paypal-info").style.display = metodo === "paypal" ? "block" : "none";
+     }
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+          cookie = cookie.trim();
+          if (cookie.startsWith(name + '=')) {
+            cookieValue = decodeURIComponent(cookie.slice(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+    function submitPagamento() {
+      const ids = cart.map(c => c.id);
+      fetch('/crea_ordine/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ componenti_ids: ids })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          document.getElementById("payment-modal").style.display = "none";
+          cart = [];
+          updateCart();
+          toggleCart();
+          showMessage("Pagamento effettuato con successo!");
+          setTimeout(() => window.location.href = "/", 1500);
+        } else {
+          alert("Errore: " + data.error);
+        }
+      });
+    }
+  </script>
+</body>
+</html>

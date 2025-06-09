@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Chi siamo - TechHub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Ubuntu', sans-serif;
+            background: linear-gradient(-45deg, #1e3c72, #2a5298, #0f2027, #203a43);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            color: #fff;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+
+        @keyframes gradient {
+            0% {background-position: 0% 50%;}
+            50% {background-position: 100% 50%;}
+            100% {background-position: 0% 50%;}
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.08);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            max-width: 800px;
+            margin: auto;
+        }
+
+        h1, h2 {
+            color: #ffffff;
+        }
+
+        p, li {
+            color: #e0e0e0;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        a {
+            color: #cce1ff;
+            text-decoration: underline;
+        }
+
+        .freccia {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 6px 12px;
+            border-radius: 8px;
+            transition: background 0.2s ease;
+        }
+
+        .freccia:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body>
+<a href="/" class="freccia">←</a>
+<div class="container">
+    <h1>Chi siamo</h1>
+    <p><strong>TechHub</strong> è un portale per acquistare e recensire componenti hardware in modo semplice e affidabile. Selezioniamo solo prodotti validi, collaborando con rivenditori europei seri.</p>
+
+    <h2>Spedizione</h2>
+    <p>Spediamo in tutta Italia entro 24-72 ore lavorative. Tutti i pacchi sono tracciabili e imballati con cura.</p>
+
+    <h2>Aziende partner</h2>
+    <ul>
+        <li><strong>LDLC</strong> (Francia)</li>
+        <li><strong>Alternate</strong> (Germania)</li>
+        <li><strong>Caseking</strong> (Germania)</li>
+        <li><strong>Overclockers UK</strong> (Regno Unito)</li>
+        <li><strong>Materiel.net</strong> (Francia)</li>
+        <li><strong>Komplett</strong> (Norvegia)</li>
+        <li><strong>Scan Computers</strong> (Regno Unito)</li>
+    </ul>
+
+    <h2>La nostra storia</h2>
+    <p>TechHub nasce dall’idea di un gruppo di studenti appassionati di tecnologia. Stanchi di siti confusi e spedizioni lente, abbiamo creato uno store veloce, chiaro e trasparente.</p>
+
+    <h2>Contatti</h2>
+    <p>Per informazioni o assistenza: <a href="mailto:info@techhub.it">info@techhub.it</a></p>
+</div>
+</body>
+</html>

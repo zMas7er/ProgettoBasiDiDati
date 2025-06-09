@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Recensioni - TechHub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Ubuntu', sans-serif;
+            background: linear-gradient(-45deg, #1e3c72, #2a5298, #0f2027, #203a43);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            color: white;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+
+        @keyframes gradient {
+            0% {background-position: 0% 50%;}
+            50% {background-position: 100% 50%;}
+            100% {background-position: 0% 50%;}
+        }
+
+        h1 {
+            font-size: 32px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .recensione {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 15px auto;
+            max-width: 600px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+        }
+
+        .recensione h3 {
+            margin: 0 0 5px;
+        }
+
+        .recensione p {
+            margin: 5px 0;
+        }
+
+        .stelle {
+            color: gold;
+            font-size: 20px;
+        }
+
+        .freccia {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 6px 12px;
+            border-radius: 8px;
+            transition: background 0.2s ease;
+        }
+
+        .freccia:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body>
+<a href="/" class="freccia">←</a>
+<h1>Recensioni degli utenti</h1>
+{% for rec in recensioni %}
+    <div class="recensione">
+        <h3>{{ rec.titolo }}</h3>
+        <p class="stelle">
+            {% for i in "12345" %}
+                {% if forloop.counter <= rec.voto %}
+                    ★
+                {% else %}
+                    ☆
+                {% endif %}
+            {% endfor %}
+        </p>
+        <p>{{ rec.testo }}</p>
+    </div>
+{% empty %}
+    <p style="text-align: center; font-weight: bold;">Nessuna recensione disponibile.</p>
+{% endfor %}
+</body>
+</html>
