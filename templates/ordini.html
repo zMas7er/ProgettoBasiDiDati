@@ -58,7 +58,7 @@
 
     {% for ordine in ordini %}
     <div class="ordine">
-        <h2>Ordine #{{ ordine.ID_ordine }} - {{ ordine.data_creazione|date:"d/m/Y H:i" }}</h2>
+        <h2>Ordine {{ ordine.data_creazione|date:"d/m/Y H:i" }}</h2>
         <p><strong>Stato:</strong> {{ ordine.stato }}</p>
         <p><strong>Componenti:</strong></p>
         <ul class="componenti">
