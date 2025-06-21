@@ -11,7 +11,13 @@ urlpatterns = [
     path('recensione/', views.recensione_view, name='recensione'),
     path('crea_ordine/', views.crea_ordine_view, name='crea_ordine'),
     path('aziende/', views.aziende_view, name='aziende'),
-    path('recensioni/', views.recensioni_view, name='recensioni'),
     path('chi-siamo/', chi_siamo_view, name='chi_siamo'),
-]
 
+    # nuove
+    path('scelta-registrazione/', views.scelta_registrazione_view, name='scelta_registrazione'),
+    path('register/privato/', views.register_privato_view, name='register_privato'),
+    path('register/azienda/', views.register_azienda_view, name='register_azienda'),
+    path('profilo/', views.profilo_view, name='profilo'),
+    path('logout/', views.logout_view, name='logout'),
+
+]

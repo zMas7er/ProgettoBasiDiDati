@@ -60,12 +60,20 @@
     <div class="ordine">
         <h2>Ordine {{ ordine.data_creazione|date:"d/m/Y H:i" }}</h2>
         <p><strong>Stato:</strong> {{ ordine.stato }}</p>
-        <p><strong>Componenti:</strong></p>
-        <ul class="componenti">
-            {% for comp in ordine.componenti.all %}
-            <li>{{ comp.nome }} - €{{ comp.prezzo }}</li>
-            {% endfor %}
-        </ul>
+
+{% if ordine.sconto_applicato > 0 %}
+<p><strong>Sconto applicato:</strong> {{ ordine.sconto_applicato }}%</p>
+{% endif %}
+
+<p><strong>Totale pagato:</strong> €{{ ordine.prezzo }}</p>
+
+<p><strong>Componenti:</strong></p>
+<ul class="componenti">
+    {% for comp in ordine.componenti.all %}
+    <li>{{ comp.nome }} - €{{ comp.prezzo }}</li>
+    {% endfor %}
+</ul>
+
     </div>
     {% empty %}
     <p style="text-align: center; font-weight: bold;">Non hai effettuato ordini.</p>

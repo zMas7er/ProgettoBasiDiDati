@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.utils import timezone
 from TechHub.models import Azienda
@@ -10,21 +10,29 @@ from TechHub.models import Componenti, Utente, Ordine, Recensione
 import json
 
 
-# shop/views.py
-
 def login_view(request):
     if request.method == 'POST':
         ID_utente = request.POST.get('ID_utente', '').strip()
         password = request.POST.get('password', '').strip()
+        ruolo = request.POST.get('ruolo', '').strip()
+
+        if not ruolo:
+            messages.error(request, 'Seleziona un ruolo.')
+            return redirect('login')
 
         try:
             utente = Utente.objects.get(ID_utente=ID_utente, password=password)
+            if utente.ruolo != ruolo:
+                messages.error(request, 'Ruolo errato per questo account.')
+                return redirect('login')
             request.session['utente_id'] = utente.id
             return redirect('componenti')
         except Utente.DoesNotExist:
             messages.error(request, 'Credenziali errate.')
 
     return render(request, 'login.html')
+
+
 def home_view(request):
     return render(request, 'home.html')
 
@@ -46,38 +54,61 @@ def register_view(request):
 
     return render(request, 'register.html')
 
+from decimal import Decimal
+
 def componenti_view(request):
+    utente_id = request.session.get('utente_id')
+    sconto = 0
+    utente = None
+
+    if utente_id:
+        utente = Utente.objects.get(id=utente_id)
+        if utente.ruolo == 'azienda':
+            sconto = 10  # esempio: 10% di sconto
+
     componenti = Componenti.objects.all()
-    categorie = ["GPU", "CPU", "RAM", "Scheda madre"]
+    categorie = Componenti.objects.values_list('tipologia', flat=True).distinct()
+
     return render(request, 'componenti.html', {
         'componenti': componenti,
-        'categorie': categorie
+        'categorie': categorie,
+        'sconto': sconto,
+        'utente': utente
     })
+
 
 
 def crea_ordine_view(request):
     if request.method == 'POST' and 'utente_id' in request.session:
         try:
-            import json
             data = json.loads(request.body)
             componenti_ids = data.get('componenti_ids', [])
 
             if not componenti_ids:
                 return JsonResponse({'success': False, 'error': 'Nessun componente selezionato.'})
 
+            utente = Utente.objects.get(id=request.session['utente_id'])
+            sconto = 10 if utente.ruolo == 'azienda' else 0
+
             totale = 0
             componenti = []
 
             for comp_id in componenti_ids:
                 comp = Componenti.objects.get(id=comp_id)
-                totale += float(comp.prezzo)
+                prezzo = float(comp.prezzo)
+                if sconto:
+                    prezzo -= prezzo * (sconto / 100)
+                totale += prezzo
                 componenti.append(comp)
 
-            # crea ordine con prezzo totale
             ordine = Ordine.objects.create(
-                utente_id=request.session['utente_id'],
+                utente=utente,
                 stato='attesa',
-                prezzo=totale
+                prezzo=totale,
+                sconto_applicato=sconto,
+                nome=componenti[0].nome,
+                marca=componenti[0].marca,
+                tipologia=componenti[0].tipologia
             )
 
             for comp in componenti:
@@ -96,6 +127,7 @@ def ordini_view(request):
 
     ordini = Ordine.objects.filter(utente_id=request.session['utente_id']).order_by('-data_creazione')
     return render(request, 'ordini.html', {'ordini': ordini})
+
 
 def recensione_view(request):
     if request.method == 'POST' and 'utente_id' in request.session:
@@ -127,3 +159,83 @@ def recensioni_view(request):
 
 def chi_siamo_view(request):
     return render(request, 'chi_siamo.html')
+
+def scelta_registrazione_view(request):
+    return render(request, 'scelta_registrazione.html')
+
+def register_privato_view(request):
+    if request.method == 'POST':
+        ID_utente = request.POST.get('ID_utente', '').strip()
+        password = request.POST.get('password', '').strip()
+        email = request.POST.get('email', '').strip()
+
+        if not password:
+            messages.error(request, 'La password non può essere vuota.')
+        elif Utente.objects.filter(ID_utente=ID_utente).exists():
+            messages.error(request, 'ID utente già registrato.')
+        else:
+            utente = Utente(
+                ID_utente=ID_utente,
+                password=password,
+                email=email or None,
+                ruolo='privato'
+            )
+            utente.save()
+            messages.success(request, 'Registrazione completata.')
+            return redirect('login')
+
+    return render(request, 'register_privato.html')
+
+
+def register_azienda_view(request):
+    if request.method == 'POST':
+        ID_utente = request.POST.get('ID_utente', '').strip()
+        password = request.POST.get('password', '').strip()
+        email = request.POST.get('email', '').strip()
+        partita_iva = request.POST.get('partita_iva', '').strip()
+
+        if not password:
+            messages.error(request, 'La password non può essere vuota.')
+        elif Utente.objects.filter(ID_utente=ID_utente).exists():
+            messages.error(request, 'ID utente già registrato.')
+        else:
+            utente = Utente(
+                ID_utente=ID_utente,
+                password=password,
+                email=email or None,
+                ruolo='azienda',
+                partita_iva=partita_iva or None
+            )
+            utente.save()
+            messages.success(request, 'Registrazione completata.')
+            return redirect('login')
+
+    return render(request, 'register_azienda.html')
+
+def profilo_view(request):
+    if 'utente_id' not in request.session:
+        return redirect('login')
+
+    utente = Utente.objects.get(id=request.session['utente_id'])
+
+    if request.method == 'POST':
+        if utente.ruolo == 'privato':
+            utente.data_nascita = request.POST.get('data_nascita') or None
+            utente.telefono = request.POST.get('telefono') or None
+        elif utente.ruolo == 'azienda':
+            utente.partita_iva = request.POST.get('partita_iva') or None
+            utente.telefono_aziendale = request.POST.get('telefono_aziendale') or None
+
+        utente.nazionalita = request.POST.get('nazionalita') or None
+        utente.save()
+        messages.success(request, 'Profilo aggiornato.')
+
+        return redirect('componenti')  # <--- Ritorna alla pagina componenti
+
+    return render(request, 'profilo.html', {'utente': utente})
+
+def logout_view(request):
+    logout(request)
+    # Rimuove messaggi in sospeso
+    list(messages.get_messages(request))
+    return redirect('home')

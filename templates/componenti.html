@@ -183,6 +183,7 @@
   </style>
 </head>
 <body>
+
   <div class="cart-bar">
     <span class="cart-icon" onclick="toggleCart()">🛒 Carrello (<span id="cart-count">0</span>)</span>
   </div>
@@ -217,6 +218,23 @@
       </div>
     </div>
   </div>
+<div style="position: fixed; top: 20px; left: 20px; z-index: 999;">
+  <div style="position: relative;">
+    <button onclick="toggleProfileMenu()" style="background: white; color: #1e3c72; border: none; border-radius: 50%; width: 45px; height: 45px; font-size: 20px; cursor: pointer;">👤</button>
+    <div id="profile-menu" style="display: none; position: absolute; left: 50px; top: 0; background: white; color: #1e3c72; padding: 10px; border-radius: 8px;">
+      <p>{{ utente.ID_utente }}</p>
+      <a href="/profilo/">Profilo</a><br>
+      <a href="/logout/">Logout</a>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleProfileMenu() {
+  const menu = document.getElementById('profile-menu');
+  menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+}
+</script>
 
   <h1> Catalogo Componenti</h1>
 
@@ -230,7 +248,24 @@
         {% if comp.immagine %}<img src="{{ comp.immagine }}" alt="{{ comp.nome }}">{% endif %}
         <h4>{{ comp.nome }}</h4>
         <p>Marca: {{ comp.marca }}</p>
-        <p>Prezzo: €{{ comp.prezzo }}</p>
+        {% if sconto > 0 %}
+  {% with comp.prezzo|floatformat:2 as prezzo_originale %}
+    {% with comp.prezzo|floatformat:2 as prezzo_lordo %}
+      {% with prezzo_lordo|floatformat:2 as lordo %}
+        {% with prezzo_lordo|floatformat:2 as prezzo %}
+          <p>
+            Prezzo: <del>€{{ comp.prezzo }}</del><br>
+            Scontato: €{{ comp.prezzo|floatformat:2|floatformat:"0"|add:""|floatformat:"0" }} <span style="font-size: 13px;">(Sconto IVA)</span>
+          </p>
+        {% endwith %}
+      {% endwith %}
+    {% endwith %}
+  {% endwith %}
+{% else %}
+  <p>Prezzo: €{{ comp.prezzo }}</p>
+{% endif %}
+
+
         <button class="add-to-cart" onclick="addToCart({{ comp.id }}, '{{ comp.nome|escapejs }}', '{{ comp.prezzo }}')">Aggiungi al carrello</button>
       </div>
       {% endif %}
@@ -243,23 +278,43 @@
   <script>
     let cart = [];
     function addToCart(id, nome, prezzo) {
-      cart.push({ id, nome, prezzo: parseFloat(prezzo) });
-      updateCart();
-      showMessage("Aggiunto al carrello: " + nome);
-    }
+    const scontoPercentuale = {{ sconto|default:0 }};
+    let prezzoNumerico = parseFloat(prezzo);
+
+  if (scontoPercentuale > 0) {
+    prezzoNumerico = prezzoNumerico - (prezzoNumerico * scontoPercentuale / 100);
+    prezzoNumerico = parseFloat(prezzoNumerico.toFixed(2));
+  }
+
+  cart.push({ id, nome, prezzo: prezzoNumerico });
+  updateCart();
+  showMessage("Aggiunto al carrello: " + nome + (scontoPercentuale ? " con sconto del " + scontoPercentuale + "%" : ""));
+}
     function updateCart() {
-      document.getElementById("cart-count").textContent = cart.length;
-      const cartItems = document.getElementById("cart-items");
-      cartItems.innerHTML = '';
-      let totale = 0;
-      cart.forEach(item => {
-        const li = document.createElement("li");
-        li.textContent = `${item.nome} - €${item.prezzo.toFixed(2)}`;
-        cartItems.appendChild(li);
-        totale += item.prezzo;
-      });
-      document.getElementById("cart-total").textContent = totale.toFixed(2);
-    }
+  document.getElementById("cart-count").textContent = cart.length;
+  const cartItems = document.getElementById("cart-items");
+  cartItems.innerHTML = '';
+  let totale = 0;
+
+  const scontoPercentuale = {{ sconto|default:0 }};
+
+  cart.forEach((item, index) => {
+    const li = document.createElement("li");
+    const scontoText = scontoPercentuale > 0 ? ' (Sconto IVA)' : '';
+    li.innerHTML = `${item.nome} - €${item.prezzo.toFixed(2)}${scontoText}
+      <button onclick="rimuoviDalCarrello(${index})" style="margin-left:10px;">❌</button>`;
+    cartItems.appendChild(li);
+    totale += item.prezzo;
+  });
+
+  document.getElementById("cart-total").textContent = totale.toFixed(2);
+}
+
+function rimuoviDalCarrello(index) {
+  cart.splice(index, 1);
+  updateCart();
+}
+
     function showMessage(text) {
       const msg = document.createElement("div");
       msg.className = "msg-popup";

@@ -1,12 +1,29 @@
 from django.db import models
 
 class Utente(models.Model):
-    ID_utente = models.CharField(max_length=50, unique=True)  # usato per il login
-    password = models.CharField(max_length=100)               # obbligatoria
-    email = models.EmailField(blank=True, null=True)          # opzionale
+    RUOLO_CHOICES = [
+        ('privato', 'Utente Privato'),
+        ('azienda', 'Azienda'),
+    ]
+
+    ID_utente = models.CharField(max_length=50, unique=True)
+    password = models.CharField(max_length=100)
+    email = models.EmailField(blank=True, null=True)
+    ruolo = models.CharField(max_length=10, choices=RUOLO_CHOICES)
+
+    # Dati per utenti privati
+    data_nascita = models.DateField(blank=True, null=True)
+    telefono = models.CharField(max_length=20, blank=True, null=True)
+
+    # Dato comune
+    nazionalita = models.CharField(max_length=50, blank=True, null=True)
+
+    # Dati per aziende
+    partita_iva = models.CharField(max_length=50, blank=True, null=True)
+    telefono_aziendale = models.CharField(max_length=20, blank=True, null=True)
 
     def __str__(self):
-        return self.ID_utente
+        return f"{self.ID_utente} ({self.ruolo})"
 
 
 class Azienda(models.Model):
@@ -41,6 +58,7 @@ class Ordine(models.Model):
         ('consegnato', 'Consegnato'),
         ('annullato', 'Annullato'),
     ])
+    sconto_applicato = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
 
     # Dati copiati dal componente
     nome = models.CharField(max_length=100)

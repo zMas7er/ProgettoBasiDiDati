@@ -103,6 +103,11 @@
         {% csrf_token %}
         <input type="text" name="ID_utente" placeholder="ID Utente" required>
         <input type="password" name="password" placeholder="Password" required>
+        <select name="ruolo" required>
+            <option value="">Seleziona ruolo</option>
+            <option value="privato">Utente Privato</option>
+            <option value="azienda">Azienda</option>
+        </select>
         <button type="submit">Accedi</button>
     </form>
 </div>

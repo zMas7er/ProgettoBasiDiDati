@@ -2,18 +2,21 @@ create table TechHub_azienda
 (
     ID_azienda   integer      not null
         primary key autoincrement,
-    nome_azienda varchar(100) not null,
-    sede_legale  varchar(100) not null
+    sede_legale  varchar(100) not null,
+    nome_azienda varchar(100) not null
+        unique
 );
 
 create table TechHub_componenti
 (
-    ID_componente integer      not null
+    id         integer      not null
         primary key autoincrement,
-    nome          varchar(100) not null,
-    marca         varchar(50)  not null,
-    tipologia     varchar(50)  not null,
-    azienda_id    integer      not null
+    nome       varchar(100) not null,
+    marca      varchar(100) not null,
+    tipologia  varchar(50)  not null,
+    prezzo     decimal      not null,
+    immagine   varchar(500),
+    azienda_id integer      not null
         references TechHub_azienda
             deferrable initially deferred
 );
@@ -23,73 +26,64 @@ create index TechHub_componenti_azienda_id_f6719760
 
 create table TechHub_utente
 (
-    ID_utente    integer      not null
+    id        integer      not null
         primary key autoincrement,
-    email        varchar(254) not null
+    ID_utente varchar(50)  not null
         unique,
-    data_nascita date         not null
+    password  varchar(100) not null,
+    email     varchar(254)
 );
 
 create table TechHub_ordine
 (
-    ID_ordine      integer     not null
+    ID_ordine      integer      not null
         primary key autoincrement,
-    data_creazione datetime    not null,
-    stato          varchar(20) not null,
-    utente_id      integer     not null
+    data_creazione datetime     not null,
+    stato          varchar(20)  not null,
+    utente_id      bigint       not null
         references TechHub_utente
-            deferrable initially deferred
-);
-
-create table TechHub_contiene
-(
-    id            integer not null
-        primary key autoincrement,
-    componente_id integer not null
-        references TechHub_componenti
             deferrable initially deferred,
-    ordine_id     integer not null
-        references TechHub_ordine
-            deferrable initially deferred
+    marca          varchar(100) not null,
+    nome           varchar(100) not null,
+    prezzo         decimal      not null,
+    tipologia      varchar(50)  not null
 );
-
-create index TechHub_contiene_componente_id_a81d3c4a
-    on TechHub_contiene (componente_id);
-
-create index TechHub_contiene_ordine_id_7ea80e7b
-    on TechHub_contiene (ordine_id);
 
 create index TechHub_ordine_utente_id_bf1bb8df
     on TechHub_ordine (utente_id);
 
-create table TechHub_pagamento
+create table TechHub_ordine_componenti
 (
-    ID_pagamento integer     not null
+    id            integer not null
         primary key autoincrement,
-    metodo       varchar(20) not null,
-    esito        varchar(20) not null,
-    ordine_id    integer     not null
-        unique
+    ordine_id     integer not null
         references TechHub_ordine
+            deferrable initially deferred,
+    componenti_id bigint  not null
+        references TechHub_componenti
             deferrable initially deferred
 );
+
+create index TechHub_ordine_componenti_componenti_id_0355759b
+    on TechHub_ordine_componenti (componenti_id);
+
+create index TechHub_ordine_componenti_ordine_id_98af604a
+    on TechHub_ordine_componenti (ordine_id);
+
+create unique index TechHub_ordine_componenti_ordine_id_componenti_id_310193ea_uniq
+    on TechHub_ordine_componenti (ordine_id, componenti_id);
 
 create table TechHub_recensione
 (
-    ID_recensione integer not null
+    ID_recensione integer      not null
         primary key autoincrement,
-    voto          integer not null,
-    testo         text    not null,
-    componente_id integer not null
-        references TechHub_componenti
-            deferrable initially deferred,
-    utente_id     integer not null
+    voto          integer      not null,
+    testo         text         not null,
+    utente_id     bigint       not null
         references TechHub_utente
-            deferrable initially deferred
+            deferrable initially deferred,
+    titolo        varchar(100) not null
 );
-
-create index TechHub_recensione_componente_id_a69364ab
-    on TechHub_recensione (componente_id);
 
 create index TechHub_recensione_utente_id_b992d930
     on TechHub_recensione (utente_id);
@@ -206,6 +200,30 @@ create index auth_user_user_permissions_user_id_a95ead1b
 
 create unique index auth_user_user_permissions_user_id_permission_id_14a6b632_uniq
     on auth_user_user_permissions (user_id, permission_id);
+
+create table django_admin_log
+(
+    id              integer           not null
+        primary key autoincrement,
+    object_id       text,
+    object_repr     varchar(200)      not null,
+    action_flag     smallint unsigned not null,
+    change_message  text              not null,
+    content_type_id integer
+        references django_content_type
+            deferrable initially deferred,
+    user_id         integer           not null
+        references auth_user
+            deferrable initially deferred,
+    action_time     datetime          not null,
+    check ("action_flag" >= 0)
+);
+
+create index django_admin_log_content_type_id_c4bce8eb
+    on django_admin_log (content_type_id);
+
+create index django_admin_log_user_id_c564eba6
+    on django_admin_log (user_id);
 
 create unique index django_content_type_app_label_model_76bd3d3b_uniq
     on django_content_type (app_label, model);
