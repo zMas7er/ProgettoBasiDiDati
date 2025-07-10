@@ -16,6 +16,7 @@
       padding: 20px;
       min-height: 100vh;
     }
+
     @keyframes gradient {
       0% {background-position: 0% 50%;}
       50% {background-position: 100% 50%;}
@@ -182,11 +183,17 @@
     }
   </style>
 </head>
-<body>
 
+<body>
   <div class="cart-bar">
     <span class="cart-icon" onclick="toggleCart()">🛒 Carrello (<span id="cart-count">0</span>)</span>
   </div>
+
+    <div style="margin-bottom: 10px;">
+    <a href="{% url 'home' %}" style="background-color: #ffffff; color: #1e3c72; padding: 8px 12px; border-radius: 20px; text-decoration: none; font-weight: bold; box-shadow: 0 2px 6px rgba(0,0,0,0.2);">
+        🏠 Home
+    </a>
+</div>
 
   <div class="cart-panel" id="cart-panel">
     <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -248,23 +255,15 @@ function toggleProfileMenu() {
         {% if comp.immagine %}<img src="{{ comp.immagine }}" alt="{{ comp.nome }}">{% endif %}
         <h4>{{ comp.nome }}</h4>
         <p>Marca: {{ comp.marca }}</p>
-        {% if sconto > 0 %}
-  {% with comp.prezzo|floatformat:2 as prezzo_originale %}
-    {% with comp.prezzo|floatformat:2 as prezzo_lordo %}
-      {% with prezzo_lordo|floatformat:2 as lordo %}
-        {% with prezzo_lordo|floatformat:2 as prezzo %}
-          <p>
-            Prezzo: <del>€{{ comp.prezzo }}</del><br>
-            Scontato: €{{ comp.prezzo|floatformat:2|floatformat:"0"|add:""|floatformat:"0" }} <span style="font-size: 13px;">(Sconto IVA)</span>
-          </p>
-        {% endwith %}
-      {% endwith %}
-    {% endwith %}
-  {% endwith %}
+        {% if comp.prezzo_scontato %}
+  <p>
+    Prezzo: <del>€{{ comp.prezzo }}</del><br>
+    Scontato: €{{ comp.prezzo_scontato }} <span style="font-size: 13px;">(Sconto IVA)</span>
+  </p>
 {% else %}
   <p>Prezzo: €{{ comp.prezzo }}</p>
 {% endif %}
-
+      
 
         <button class="add-to-cart" onclick="addToCart({{ comp.id }}, '{{ comp.nome|escapejs }}', '{{ comp.prezzo }}')">Aggiungi al carrello</button>
       </div>

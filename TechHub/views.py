@@ -1,14 +1,12 @@
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import logout
 from django.contrib import messages
 from django.utils import timezone
 from TechHub.models import Azienda
-from TechHub.models import Componenti, Utente, Ordine, Recensione
+from TechHub.models import Componenti, Utente, Ordine, Recensione, Giveaway, Partecipa
 import json
-
+import random
 
 def login_view(request):
     if request.method == 'POST':
@@ -68,6 +66,12 @@ def componenti_view(request):
 
     componenti = Componenti.objects.all()
     categorie = Componenti.objects.values_list('tipologia', flat=True).distinct()
+
+    for comp in componenti:
+        if sconto > 0:
+            comp.prezzo_scontato = round(comp.prezzo - (comp.prezzo * sconto / 100), 2)
+        else:
+            comp.prezzo_scontato = None
 
     return render(request, 'componenti.html', {
         'componenti': componenti,
@@ -239,3 +243,39 @@ def logout_view(request):
     # Rimuove messaggi in sospeso
     list(messages.get_messages(request))
     return redirect('home')
+
+from django.utils import timezone
+
+def giveaway_view(request):
+    giveaway = Giveaway.objects.last()
+    partecipanti = Partecipa.objects.filter(giveaway=giveaway).count()
+
+    # Calcola giorni alla scadenza
+    scadenza_giorni = (giveaway.data_fine - timezone.now()).days if giveaway else 0
+
+    # Gestione POST (già la tua)
+    if request.method == 'POST' and 'utente_id' in request.session:
+        utente_id = request.session['utente_id']
+        email = request.POST.get('email')
+
+        if Partecipa.objects.filter(utente_id=utente_id, giveaway=giveaway).exists():
+            messages.error(request, 'Hai già partecipato.')
+            return redirect('home')
+
+        Partecipa.objects.create(utente_id=utente_id, giveaway=giveaway, email=email)
+        messages.success(request, 'Partecipazione registrata!')
+        return redirect('home')
+
+    return render(request, 'giveaway.html', {
+        'giveaway': giveaway,
+        'partecipanti': partecipanti,
+        'scadenza_giorni': scadenza_giorni,
+    })
+
+
+def scegli_vincitore(giveaway):
+    partecipanti = Partecipa.objects.filter(giveaway=giveaway)
+    if partecipanti.exists():
+        vincitore = random.choice(partecipanti)
+        return vincitore.email
+    return None

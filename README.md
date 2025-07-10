@@ -41,6 +41,18 @@ TechHub è un sito web per acquistare e recensire componenti hardware come CPU, 
 
 ---
 
+## ACCOUNT DI PROVA
+
+### UTENTE PRIVATO
+- ID utente: Utente01
+- Password: Pass01
+
+### AZIENDA
+- ID utente: Azienda01
+- Password: Pass01
+
+---
+
 ## STRUTTURA DEL PROGETTO
 
 ### MODELLI (`models.py`)
@@ -49,6 +61,8 @@ TechHub è un sito web per acquistare e recensire componenti hardware come CPU, 
 - **Componenti**: `nome`, `marca`, `tipologia`, `prezzo`, `immagine`, `ID_azienda`
 - **Ordine**: `ID_ordine`, `utente`, `nome`, `stato`, `data_creazione`
 - **Recensione**: `ID_recensione`, `titolo`, `voto (1-5)`, `testo`, `ID_utente`
+- **Giveaway**: `ID_giveaway`, `titolo`, `immagine`, `data_inizio`, `data_fine`
+- **Recensione**: `utente`, `email`, `giveaway`, `data`
 
 ### VISTE (`views.py`)
 - `login_view`
@@ -71,6 +85,11 @@ TechHub è un sito web per acquistare e recensire componenti hardware come CPU, 
 - `recensioni.html`
 - `aziende.html`
 - `chi_siamo.html`
+- `giveaway.html`
+- `profilo.html`
+- `register_azienda.html`
+- `register_privato.html`
+- `scelta_registrazione.html`
 
 ---
 

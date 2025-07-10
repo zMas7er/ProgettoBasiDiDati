@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Giveaway - TechHub</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            font-family: 'Segoe UI', sans-serif;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 20px;
+        }
+        .box {
+            background: rgba(0,0,0,0.3);
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .box img {
+            max-width: 300px;
+            border-radius: 10px;
+        }
+        .box input, .box button {
+            padding: 10px;
+            margin: 10px 0;
+            width: 80%;
+            border: none;
+            border-radius: 5px;
+        }
+        .box button {
+            background: white;
+            color: #1e3c72;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .box button:hover {
+            background: #cce1ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="box">
+        {% if giveaway %}
+            <h2>{{ giveaway.titolo }}</h2>
+            <img src="{{ giveaway.immagine }}" alt="Giveaway">
+            <p>Partecipanti: {{ partecipanti }}</p>
+            <p>Scade tra: {{ scadenza_giorni }} giorni</p>
+            <form method="post">
+                {% csrf_token %}
+                <input type="email" name="email" placeholder="La tua email per il giveaway" required>
+                <button type="submit">Partecipa</button>
+            </form>
+        {% else %}
+            <p>Nessun giveaway attivo.</p>
+        {% endif %}
+    </div>
+</body>
+</html>

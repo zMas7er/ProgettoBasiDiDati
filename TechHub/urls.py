@@ -9,6 +9,7 @@ urlpatterns = [
     path('componenti/', views.componenti_view, name='componenti'),
     path('ordini/', views.ordini_view, name='ordini'),
     path('recensione/', views.recensione_view, name='recensione'),
+    path('recensioni/', views.recensioni_view, name='recensioni'),
     path('crea_ordine/', views.crea_ordine_view, name='crea_ordine'),
     path('aziende/', views.aziende_view, name='aziende'),
     path('chi-siamo/', chi_siamo_view, name='chi_siamo'),
@@ -19,5 +20,5 @@ urlpatterns = [
     path('register/azienda/', views.register_azienda_view, name='register_azienda'),
     path('profilo/', views.profilo_view, name='profilo'),
     path('logout/', views.logout_view, name='logout'),
-
+    path('giveaway/', views.giveaway_view, name='giveaway'),
 ]

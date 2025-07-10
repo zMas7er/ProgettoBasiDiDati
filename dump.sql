@@ -2,9 +2,9 @@ create table TechHub_azienda
 (
     ID_azienda   integer      not null
         primary key autoincrement,
-    sede_legale  varchar(100) not null,
     nome_azienda varchar(100) not null
-        unique
+        unique,
+    sede_legale  varchar(100) not null
 );
 
 create table TechHub_componenti
@@ -24,29 +24,46 @@ create table TechHub_componenti
 create index TechHub_componenti_azienda_id_f6719760
     on TechHub_componenti (azienda_id);
 
+create table TechHub_giveaway
+(
+    ID_giveaway integer      not null
+        primary key autoincrement,
+    titolo      varchar(100) not null,
+    immagine    varchar(200) not null,
+    data_inizio datetime     not null,
+    data_fine   datetime     not null
+);
+
 create table TechHub_utente
 (
-    id        integer      not null
+    id                 integer      not null
         primary key autoincrement,
-    ID_utente varchar(50)  not null
+    ID_utente          varchar(50)  not null
         unique,
-    password  varchar(100) not null,
-    email     varchar(254)
+    password           varchar(100) not null,
+    email              varchar(254),
+    ruolo              varchar(10)  not null,
+    data_nascita       date,
+    telefono           varchar(20),
+    nazionalita        varchar(50),
+    partita_iva        varchar(50),
+    telefono_aziendale varchar(20)
 );
 
 create table TechHub_ordine
 (
-    ID_ordine      integer      not null
+    ID_ordine        integer      not null
         primary key autoincrement,
-    data_creazione datetime     not null,
-    stato          varchar(20)  not null,
-    utente_id      bigint       not null
+    data_creazione   datetime     not null,
+    stato            varchar(20)  not null,
+    sconto_applicato decimal      not null,
+    nome             varchar(100) not null,
+    marca            varchar(100) not null,
+    tipologia        varchar(50)  not null,
+    prezzo           decimal      not null,
+    utente_id        bigint       not null
         references TechHub_utente
-            deferrable initially deferred,
-    marca          varchar(100) not null,
-    nome           varchar(100) not null,
-    prezzo         decimal      not null,
-    tipologia      varchar(50)  not null
+            deferrable initially deferred
 );
 
 create index TechHub_ordine_utente_id_bf1bb8df
@@ -73,16 +90,39 @@ create index TechHub_ordine_componenti_ordine_id_98af604a
 create unique index TechHub_ordine_componenti_ordine_id_componenti_id_310193ea_uniq
     on TechHub_ordine_componenti (ordine_id, componenti_id);
 
+create table TechHub_partecipa
+(
+    id          integer      not null
+        primary key autoincrement,
+    email       varchar(254) not null,
+    data        datetime     not null,
+    giveaway_id integer      not null
+        references TechHub_giveaway
+            deferrable initially deferred,
+    utente_id   bigint       not null
+        references TechHub_utente
+            deferrable initially deferred
+);
+
+create index TechHub_partecipa_giveaway_id_ae202609
+    on TechHub_partecipa (giveaway_id);
+
+create index TechHub_partecipa_utente_id_eac042e4
+    on TechHub_partecipa (utente_id);
+
+create unique index TechHub_partecipa_utente_id_giveaway_id_c381d13f_uniq
+    on TechHub_partecipa (utente_id, giveaway_id);
+
 create table TechHub_recensione
 (
     ID_recensione integer      not null
         primary key autoincrement,
+    titolo        varchar(100) not null,
     voto          integer      not null,
     testo         text         not null,
     utente_id     bigint       not null
         references TechHub_utente
-            deferrable initially deferred,
-    titolo        varchar(100) not null
+            deferrable initially deferred
 );
 
 create index TechHub_recensione_utente_id_b992d930
@@ -247,5 +287,20 @@ create table django_session
 
 create index django_session_expire_date_a5c62663
     on django_session (expire_date);
+
+create table sqlite_master
+(
+    type     TEXT,
+    name     TEXT,
+    tbl_name TEXT,
+    rootpage INT,
+    sql      TEXT
+);
+
+create table sqlite_sequence
+(
+    name,
+    seq
+);
 
 

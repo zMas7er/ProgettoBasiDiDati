@@ -1,4 +1,6 @@
 from django.db import models
+from django.utils import timezone
+from datetime import timedelta
 
 class Utente(models.Model):
     RUOLO_CHOICES = [
@@ -80,4 +82,28 @@ class Recensione(models.Model):
     def __str__(self):
         return f"{self.titolo} ({self.voto} stelle)"
 
+def default_data_fine():
+    return timezone.now() + timedelta(days=7)
 
+class Giveaway(models.Model):
+    ID_giveaway = models.AutoField(primary_key=True)
+    titolo = models.CharField(max_length=100)
+    immagine = models.URLField()
+    data_inizio = models.DateTimeField(default=timezone.now)
+    data_fine = models.DateTimeField(default=default_data_fine)
+
+    def __str__(self):
+        return self.titolo
+
+
+class Partecipa(models.Model):
+    utente = models.ForeignKey(Utente, on_delete=models.CASCADE)
+    email = models.EmailField()
+    giveaway = models.ForeignKey(Giveaway, on_delete=models.CASCADE)
+    data = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('utente', 'giveaway')
+
+    def __str__(self):
+        return f"{self.utente} - {self.email} - {self.giveaway}"
